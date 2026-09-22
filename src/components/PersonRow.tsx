@@ -35,6 +35,7 @@ export function PersonRow({
         disabled={readOnly}
         onChange={(e) => onUpdate({ capacity: Number(e.target.value) })}
         aria-label="Capacity"
+        title="Capacity"
       />
       <span className="row-op">−</span>
       <input
@@ -46,6 +47,7 @@ export function PersonRow({
         disabled={readOnly}
         onChange={(e) => onUpdate({ unavailable: Number(e.target.value) })}
         aria-label="Unavailable"
+        title="Unavailable"
       />
       <span className="row-op">=</span>
       <span className="row-net" title="Net capacity">
