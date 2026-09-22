@@ -208,6 +208,18 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
               <span className="row-header-label">Unavailable</span>
               <span className="row-op" />
               <span className="row-header-label">Net</span>
+              <span className="row-unit" />
+              {editAllowed && (
+                <button
+                  type="button"
+                  className="row-remove"
+                  style={{ visibility: "hidden" }}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                >
+                  ×
+                </button>
+              )}
             </div>
           )}
           {plan.people.map((person) => (
