@@ -1,0 +1,376 @@
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page-plane: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --gridline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --status-critical: #d03b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page-plane: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page-plane);
+  color: var(--text-primary);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0 0 20px;
+}
+
+h2 {
+  font-size: 1.05rem;
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+/* Home page */
+
+.new-plan-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.plan-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plan-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 4px 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.plan-list-open {
+  flex: 1;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  padding: 10px 4px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.plan-list-open:hover {
+  background: var(--surface-1);
+}
+
+/* Plan page */
+
+.plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 0;
+  font-size: 0.9rem;
+}
+
+.read-only-badge {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.error-text {
+  color: var(--status-critical);
+  font-size: 0.9rem;
+}
+
+.save-failed-badge {
+  font-size: 0.8rem;
+  color: var(--status-critical);
+  border: 1px solid var(--status-critical);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.plan-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.plan-name-input {
+  font-size: 1.6rem;
+  font-weight: 600;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 200px;
+  padding: 4px 0;
+}
+
+.plan-name-input:focus {
+  outline: none;
+  border-bottom: 1px solid var(--border);
+}
+
+.unit-label-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.plan-summary {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 28px;
+}
+
+.plan-summary-numbers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.plan-summary-numbers strong {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.overflow-text strong {
+  color: var(--status-critical);
+}
+
+.plan-columns {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 32px;
+}
+
+@media (max-width: 720px) {
+  .plan-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.plan-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Rows shared by People / Tickets / Subtasks */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.subtask-row {
+  padding-left: 28px;
+}
+
+.row-input {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  padding: 6px 8px;
+  font-size: 0.9rem;
+}
+
+.row-input-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-input-type {
+  width: 110px;
+}
+
+.row-input-number {
+  width: 64px;
+}
+
+.row-unit {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-width: 2.5em;
+}
+
+.color-input {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+}
+
+.row-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.row-remove:hover {
+  color: var(--status-critical);
+}
+
+.small-button {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
+.add-form,
+.add-subtask-form {
+  padding-top: 8px;
+}
+
+.ticket {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+
+.subtasks {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Donut chart */
+
+.donut {
+  position: relative;
+  flex-shrink: 0;
+  width: 144px;
+  height: 144px;
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-percent {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.donut-sub {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+/* Mini per-row percent circle */
+
+.mini-percent {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.mini-percent-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+button {
+  font-family: inherit;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+input:disabled {
+  opacity: 0.6;
+}
