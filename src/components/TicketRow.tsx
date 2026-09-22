@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   isLeafTicket,
   parentCheckState,
   type Subtask,
   type Ticket,
 } from "../domain/planStore";
+import { AddItemForm } from "./AddItemForm";
 import { MiniPercent } from "./MiniPercent";
 import { SubtaskRow } from "./SubtaskRow";
 
@@ -44,8 +45,6 @@ export function TicketRow({
 }: TicketRowProps) {
   const leaf = isLeafTicket(ticket);
   const checkboxRef = useRef<HTMLInputElement>(null);
-  const [newSubtaskLabel, setNewSubtaskLabel] = useState("");
-  const [newSubtaskEstimate, setNewSubtaskEstimate] = useState(0);
 
   const state = parentCheckState(ticket);
   useEffect(() => {
@@ -132,34 +131,12 @@ export function TicketRow({
           />
         ))}
         {!readOnly && (
-          <form
-            className="row add-subtask-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!newSubtaskLabel.trim()) return;
-              onAddSubtask(newSubtaskLabel.trim(), newSubtaskEstimate);
-              setNewSubtaskLabel("");
-              setNewSubtaskEstimate(0);
-            }}
-          >
-            <input
-              className="row-input row-input-name"
-              value={newSubtaskLabel}
-              placeholder="Add subtask…"
-              onChange={(e) => setNewSubtaskLabel(e.target.value)}
-            />
-            <input
-              className="row-input row-input-number"
-              type="number"
-              step="0.5"
-              value={newSubtaskEstimate}
-              onChange={(e) => setNewSubtaskEstimate(Number(e.target.value))}
-            />
-            <span className="row-unit">{unitLabel}</span>
-            <button type="submit" className="small-button">
-              Add
-            </button>
-          </form>
+          <AddItemForm
+            namePlaceholder="Add subtask…"
+            unitLabel={unitLabel}
+            className="add-subtask-form"
+            onAdd={onAddSubtask}
+          />
         )}
       </div>
     </div>

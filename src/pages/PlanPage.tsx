@@ -4,6 +4,7 @@ import {
   addSubtask,
   addTicket,
   leafItems,
+  overflow,
   percentOfCapacity,
   remaining,
   removePerson,
@@ -23,6 +24,7 @@ import {
 import { fetchPlan, updatePlanRemote, InvalidEditTokenError } from "../lib/persistence";
 import { upsertCachedPlan } from "../lib/localCache";
 import { debounce } from "../lib/debounce";
+import { AddItemForm } from "../components/AddItemForm";
 import { DonutChart } from "../components/DonutChart";
 import { PersonRow } from "../components/PersonRow";
 import { TicketRow } from "../components/TicketRow";
@@ -44,10 +46,6 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
   // confirmed or rejected by an actual write, never verified up front.
   const [editAllowed, setEditAllowed] = useState(Boolean(token));
   const [saveFailed, setSaveFailed] = useState(false);
-  const [newPersonName, setNewPersonName] = useState("");
-  const [newPersonCapacity, setNewPersonCapacity] = useState(0);
-  const [newTicketLabel, setNewTicketLabel] = useState("");
-  const [newTicketEstimate, setNewTicketEstimate] = useState(0);
 
   const debouncedSave = useMemo(
     () =>
@@ -131,6 +129,7 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
   const capacity = totalCapacity(plan);
   const allocated = totalAllocated(plan);
   const left = remaining(plan);
+  const isOverCapacity = overflow(plan) > 0;
   const percentFor = (estimate: number) => percentOfCapacity(plan, estimate);
   const checkedLeaves = leafItems(plan).filter((i) => i.checked);
 
@@ -188,8 +187,8 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
           <div>
             <strong>{allocated}</strong> {plan.unitLabel} allocated
           </div>
-          <div className={left < 0 ? "overflow-text" : ""}>
-            <strong>{left}</strong> {plan.unitLabel} {left < 0 ? "over" : "left"}
+          <div className={isOverCapacity ? "overflow-text" : ""}>
+            <strong>{left}</strong> {plan.unitLabel} {isOverCapacity ? "over" : "left"}
           </div>
         </div>
       </div>
@@ -208,34 +207,11 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
             />
           ))}
           {editAllowed && (
-            <form
-              className="row add-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!newPersonName.trim()) return;
-                update(addPerson(plan, newPersonName.trim(), newPersonCapacity));
-                setNewPersonName("");
-                setNewPersonCapacity(0);
-              }}
-            >
-              <input
-                className="row-input row-input-name"
-                value={newPersonName}
-                placeholder="Add person…"
-                onChange={(e) => setNewPersonName(e.target.value)}
-              />
-              <input
-                className="row-input row-input-number"
-                type="number"
-                step="0.5"
-                value={newPersonCapacity}
-                onChange={(e) => setNewPersonCapacity(Number(e.target.value))}
-              />
-              <span className="row-unit">{plan.unitLabel}</span>
-              <button type="submit" className="small-button">
-                Add
-              </button>
-            </form>
+            <AddItemForm
+              namePlaceholder="Add person…"
+              unitLabel={plan.unitLabel}
+              onAdd={(name, capacity) => update(addPerson(plan, name, capacity))}
+            />
           )}
         </section>
 
@@ -273,34 +249,11 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
             />
           ))}
           {editAllowed && (
-            <form
-              className="row add-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!newTicketLabel.trim()) return;
-                update(addTicket(plan, newTicketLabel.trim(), newTicketEstimate));
-                setNewTicketLabel("");
-                setNewTicketEstimate(0);
-              }}
-            >
-              <input
-                className="row-input row-input-name"
-                value={newTicketLabel}
-                placeholder="Add ticket…"
-                onChange={(e) => setNewTicketLabel(e.target.value)}
-              />
-              <input
-                className="row-input row-input-number"
-                type="number"
-                step="0.5"
-                value={newTicketEstimate}
-                onChange={(e) => setNewTicketEstimate(Number(e.target.value))}
-              />
-              <span className="row-unit">{plan.unitLabel}</span>
-              <button type="submit" className="small-button">
-                Add
-              </button>
-            </form>
+            <AddItemForm
+              namePlaceholder="Add ticket…"
+              unitLabel={plan.unitLabel}
+              onAdd={(label, estimate) => update(addTicket(plan, label, estimate))}
+            />
           )}
         </section>
       </div>

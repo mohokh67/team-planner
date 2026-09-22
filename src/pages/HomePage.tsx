@@ -34,9 +34,8 @@ export function HomePage({ onOpenPlan }: HomePageProps) {
             nameById.has(p.id) ? { ...p, name: nameById.get(p.id)! } : p,
           ),
         );
-        for (const row of rows) {
-          const cached = getCachedPlans().find((p) => p.id === row.id);
-          if (cached) upsertCachedPlan({ ...cached, name: row.name });
+        for (const p of plans) {
+          if (nameById.has(p.id)) upsertCachedPlan({ ...p, name: nameById.get(p.id)! });
         }
       })
       .catch(() => {
