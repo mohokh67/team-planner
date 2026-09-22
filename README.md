@@ -32,6 +32,14 @@ the first push:
    `VITE_SUPABASE_ANON_KEY` as repository secrets — or answer yes at the last
    step of `./scripts/setup-supabase.sh`, which sets both via `gh`.
 
+## Testing
+
+`npm run test:e2e` runs the Playwright suite in `e2e/` against a real
+headless browser. No Supabase project needed — `e2e/mockSupabase.ts`
+intercepts every RPC call the app makes and answers it from an in-memory
+store, so the suite is fully self-contained and fast. It starts its own dev
+server automatically (see `playwright.config.ts`).
+
 ## Access model
 
 There's no login. A Plan's URL carries both its UUID (read access) and a

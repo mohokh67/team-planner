@@ -6,6 +6,10 @@ export interface Person {
   id: string;
   name: string;
   capacity: number;
+  /** Time off this person's own Capacity, in the Plan's unit. Net Capacity
+   * (capacity - unavailable, floored at 0) is what counts toward the
+   * team's total, not the raw capacity figure. */
+  unavailable: number;
 }
 
 export interface Subtask {
@@ -110,7 +114,7 @@ export function setUnitLabel(plan: Plan, unitLabel: string): Plan {
 // ---- People ----
 
 export function addPerson(plan: Plan, name: string, capacity: number): Plan {
-  const person: Person = { id: randomId(), name, capacity };
+  const person: Person = { id: randomId(), name, capacity, unavailable: 0 };
   return { ...plan, people: [...plan.people, person] };
 }
 
@@ -121,7 +125,7 @@ export function removePerson(plan: Plan, personId: string): Plan {
 export function updatePerson(
   plan: Plan,
   personId: string,
-  patch: Partial<Pick<Person, "name" | "capacity">>,
+  patch: Partial<Pick<Person, "name" | "capacity" | "unavailable">>,
 ): Plan {
   return {
     ...plan,
@@ -282,8 +286,12 @@ export function leafItems(plan: Plan): LeafItem[] {
   return items;
 }
 
+export function netCapacity(person: Person): number {
+  return Math.max(0, person.capacity - person.unavailable);
+}
+
 export function totalCapacity(plan: Plan): number {
-  return plan.people.reduce((sum, p) => sum + p.capacity, 0);
+  return plan.people.reduce((sum, p) => sum + netCapacity(p), 0);
 }
 
 export function totalAllocated(plan: Plan): number {

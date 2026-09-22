@@ -1,10 +1,12 @@
-import type { Person } from "../domain/planStore";
+import { netCapacity, type Person } from "../domain/planStore";
 
 interface PersonRowProps {
   person: Person;
   unitLabel: string;
   readOnly: boolean;
-  onUpdate: (patch: Partial<Pick<Person, "name" | "capacity">>) => void;
+  onUpdate: (
+    patch: Partial<Pick<Person, "name" | "capacity" | "unavailable">>,
+  ) => void;
   onRemove: () => void;
 }
 
@@ -32,7 +34,23 @@ export function PersonRow({
         value={person.capacity}
         disabled={readOnly}
         onChange={(e) => onUpdate({ capacity: Number(e.target.value) })}
+        aria-label="Capacity"
       />
+      <span className="row-op">−</span>
+      <input
+        className="row-input row-input-number"
+        type="number"
+        step="0.5"
+        min="0"
+        value={person.unavailable}
+        disabled={readOnly}
+        onChange={(e) => onUpdate({ unavailable: Number(e.target.value) })}
+        aria-label="Unavailable"
+      />
+      <span className="row-op">=</span>
+      <span className="row-net" title="Net capacity">
+        {netCapacity(person)}
+      </span>
       <span className="row-unit">{unitLabel}</span>
       {!readOnly && (
         <button

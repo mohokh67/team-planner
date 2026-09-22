@@ -17,8 +17,16 @@ A named team member within a Plan, holding one capacity figure in the Plan's uni
 _Avoid_: Member, resource
 
 **Capacity**:
-A Person's individual available amount, in the Plan's unit. Summed across all People to produce the Plan's total available capacity.
+A Person's raw individual amount, in the Plan's unit, before Unavailable is taken out. Not what's summed for the Plan's total — see Net Capacity.
 _Avoid_: Availability, velocity (velocity is the historical throughput metric this number is modeled on, but the app never computes or verifies it — it's just entered by hand)
+
+**Unavailable**:
+The portion of a Person's Capacity they don't actually have to give (time off, leave), in the Plan's unit.
+_Avoid_: PTO, absence
+
+**Net Capacity**:
+A Person's Capacity minus Unavailable, floored at 0. This — not raw Capacity — is what's summed across People to produce the Plan's total available capacity.
+_Avoid_: Available capacity, remaining capacity (Remaining is a separate, Plan-level term: Capacity minus Allocated)
 
 **Ticket**:
 A unit of work (epic, initiative, story, task — the distinction is not modeled) within a Plan. A Ticket is either a **leaf** (no Subtasks: carries its own estimate, checkbox, and color) or a **parent** (one or more Subtasks: its own estimate is ignored, and it carries no color).
