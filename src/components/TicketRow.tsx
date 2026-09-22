@@ -89,6 +89,7 @@ export function TicketRow({
               className="row-input row-input-number"
               type="number"
               step="0.5"
+              min="0"
               value={ticket.estimate}
               disabled={readOnly}
               onChange={(e) =>

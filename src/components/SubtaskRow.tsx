@@ -40,6 +40,7 @@ export function SubtaskRow({
         className="row-input row-input-number"
         type="number"
         step="0.5"
+        min="0"
         value={subtask.estimate}
         disabled={readOnly}
         onChange={(e) => onUpdate({ estimate: Number(e.target.value) })}

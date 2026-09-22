@@ -37,6 +37,7 @@ export function AddItemForm({
         className="row-input row-input-number"
         type="number"
         step="0.5"
+        min="0"
         value={estimate}
         onChange={(e) => setEstimate(Number(e.target.value))}
       />

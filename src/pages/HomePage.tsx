@@ -30,13 +30,13 @@ export function HomePage({ onOpenPlan }: HomePageProps) {
       .then((rows) => {
         const nameById = new Map(rows.map((r) => [r.id, r.name]));
         setPlans((current) =>
-          current.map((p) =>
-            nameById.has(p.id) ? { ...p, name: nameById.get(p.id)! } : p,
-          ),
+          current.map((p) => {
+            if (!nameById.has(p.id)) return p;
+            const updated = { ...p, name: nameById.get(p.id)! };
+            upsertCachedPlan(updated);
+            return updated;
+          }),
         );
-        for (const p of plans) {
-          if (nameById.has(p.id)) upsertCachedPlan({ ...p, name: nameById.get(p.id)! });
-        }
       })
       .catch(() => {
         // Offline or unreachable — keep showing the cached names.

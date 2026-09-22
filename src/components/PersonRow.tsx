@@ -28,6 +28,7 @@ export function PersonRow({
         className="row-input row-input-number"
         type="number"
         step="0.5"
+        min="0"
         value={person.capacity}
         disabled={readOnly}
         onChange={(e) => onUpdate({ capacity: Number(e.target.value) })}

@@ -47,25 +47,24 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
   const [editAllowed, setEditAllowed] = useState(Boolean(token));
   const [saveFailed, setSaveFailed] = useState(false);
 
-  const debouncedSave = useMemo(
-    () =>
-      debounce((next: Plan) => {
-        updatePlanRemote(next)
-          .then(() => setSaveFailed(false))
-          .catch((err) => {
-            if (err instanceof InvalidEditTokenError) {
-              // The link's token is wrong — this was never really ours to
-              // edit, so stop pretending and drop to read-only.
-              setEditAllowed(false);
-              return;
-            }
-            // The edit is still safe in local React state; surface the
-            // failure so the user knows a refresh could lose it.
-            setSaveFailed(true);
-          });
-      }, 1000),
-    [],
-  );
+  function saveToServer(next: Plan) {
+    updatePlanRemote(next)
+      .then(() => setSaveFailed(false))
+      .catch((err) => {
+        if (err instanceof InvalidEditTokenError) {
+          // The link's token is wrong — this was never really ours to
+          // edit, so stop pretending and drop to read-only.
+          setEditAllowed(false);
+          return;
+        }
+        // The edit is still safe in local React state; surface the
+        // failure so the user knows a refresh could lose it. Cleared
+        // either by the next successful autosave, or a manual retry.
+        setSaveFailed(true);
+      });
+  }
+
+  const debouncedSave = useMemo(() => debounce(saveToServer, 1000), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -88,8 +87,9 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+    // id+token are also the component's key in App.tsx, so this only ever
+    // runs once per mount, but list both since they're both read above.
+  }, [id, token]);
 
   function update(next: Plan) {
     setPlan(next);
@@ -143,9 +143,13 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
           <span className="read-only-badge">Read-only (no edit link)</span>
         )}
         {editAllowed && saveFailed && (
-          <span className="save-failed-badge">
-            Couldn't save — changes are only kept in this tab until it's back
-          </span>
+          <button
+            type="button"
+            className="save-failed-badge"
+            onClick={() => saveToServer(plan)}
+          >
+            Couldn't save — click to retry
+          </button>
         )}
       </div>
 
