@@ -8,16 +8,19 @@ access model.
 ## Setup
 
 1. `npm install`
-2. Create a Supabase project, then run `supabase/schema.sql` in its SQL
-   editor. It creates the `plans` and `plan_secrets` tables with no direct
-   access for anyone (no RLS policies at all), plus `get_plan` /
-   `get_plan_names` / `create_plan` / `update_plan` / `delete_plan`
-   functions that are the only way in — reads are scoped to the id(s)
-   asked for, and writes check an edit token against `plan_secrets` first —
-   see `docs/adr/0001-no-auth-persistence-model.md`.
-3. Copy `.env.example` to `.env.local` and fill in your project's URL and
-   anon key (Project Settings → API).
-4. `npm run dev`
+2. Run `./scripts/setup-supabase.sh` — an interactive wizard that walks you
+   through creating a Supabase project, running `supabase/schema.sql` (see
+   below), and writing `.env.local`. Or do it by hand:
+   - Create a Supabase project, then run `supabase/schema.sql` in its SQL
+     editor. It creates the `plans` and `plan_secrets` tables with no direct
+     access for anyone (no RLS policies at all), plus `get_plan` /
+     `get_plan_names` / `create_plan` / `update_plan` / `delete_plan`
+     functions that are the only way in — reads are scoped to the id(s)
+     asked for, and writes check an edit token against `plan_secrets` first —
+     see `docs/adr/0001-no-auth-persistence-model.md`.
+   - Copy `.env.example` to `.env.local` and fill in your project's URL and
+     anon key (Project Settings → API).
+3. `npm run dev`
 
 ## Deploying to GitHub Pages
 
@@ -26,7 +29,8 @@ the first push:
 
 1. In the repo's Settings → Pages, set the source to "GitHub Actions".
 2. In Settings → Secrets and variables → Actions, add `VITE_SUPABASE_URL` and
-   `VITE_SUPABASE_ANON_KEY` as repository secrets.
+   `VITE_SUPABASE_ANON_KEY` as repository secrets — or answer yes at the last
+   step of `./scripts/setup-supabase.sh`, which sets both via `gh`.
 
 ## Access model
 
