@@ -261,6 +261,19 @@ h2 {
   min-width: 2.5em;
 }
 
+.row-op {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.row-net {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
+}
+
 .color-input {
   width: 28px;
   height: 28px;
@@ -292,6 +305,12 @@ h2 {
 .add-form,
 .add-subtask-form {
   padding-top: 8px;
+}
+
+.add-trigger {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  border-style: dashed;
 }
 
 .ticket {
