@@ -274,6 +274,19 @@ h2 {
   text-align: right;
 }
 
+.person-row-header {
+  padding-bottom: 2px;
+}
+
+.row-header-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  text-align: left;
+}
+
 .color-input {
   width: 28px;
   height: 28px;

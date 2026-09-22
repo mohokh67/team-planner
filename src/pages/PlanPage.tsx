@@ -200,6 +200,28 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
       <div className="plan-columns">
         <section className="plan-column">
           <h2>Team</h2>
+          {plan.people.length > 0 && (
+            <div className="row person-row-header">
+              <span className="row-input-name" />
+              <span className="row-header-label">Capacity</span>
+              <span className="row-op" />
+              <span className="row-header-label">Unavailable</span>
+              <span className="row-op" />
+              <span className="row-header-label">Net</span>
+              <span className="row-unit" />
+              {editAllowed && (
+                <button
+                  type="button"
+                  className="row-remove"
+                  style={{ visibility: "hidden" }}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          )}
           {plan.people.map((person) => (
             <PersonRow
               key={person.id}
