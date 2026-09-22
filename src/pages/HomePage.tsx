@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { createPlan } from "../domain/planStore";
-import { upsertPlan, deletePlan, fetchPlanNames } from "../lib/persistence";
+import {
+  createPlanRemote,
+  deletePlan,
+  fetchPlanNames,
+  InvalidEditTokenError,
+} from "../lib/persistence";
 import {
   getCachedPlans,
   upsertCachedPlan,
@@ -49,7 +54,7 @@ export function HomePage({ onOpenPlan }: HomePageProps) {
     setActionError(null);
     try {
       const plan = createPlan(name);
-      await upsertPlan(plan);
+      await createPlanRemote(plan);
       upsertCachedPlan({ id: plan.id, editToken: plan.editToken, name: plan.name });
       onOpenPlan(plan.id, plan.editToken);
     } catch {
@@ -62,11 +67,15 @@ export function HomePage({ onOpenPlan }: HomePageProps) {
   async function handleDelete(ref: CachedPlanRef) {
     if (!window.confirm(`Delete "${ref.name}"? This can't be undone.`)) return;
     try {
-      await deletePlan(ref.id);
+      await deletePlan(ref.id, ref.editToken);
       removeCachedPlan(ref.id);
       setPlans((current) => current.filter((p) => p.id !== ref.id));
-    } catch {
-      setActionError("Couldn't delete — check your connection and try again.");
+    } catch (err) {
+      setActionError(
+        err instanceof InvalidEditTokenError
+          ? "Can't delete — this browser doesn't have that plan's edit link."
+          : "Couldn't delete — check your connection and try again.",
+      );
     }
   }
 

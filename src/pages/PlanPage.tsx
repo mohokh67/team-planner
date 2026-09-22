@@ -20,8 +20,8 @@ import {
   updateTicket,
   type Plan,
 } from "../domain/planStore";
-import { fetchPlan, upsertPlan } from "../lib/persistence";
-import { upsertCachedPlan, getCachedPlans } from "../lib/localCache";
+import { fetchPlan, updatePlanRemote, InvalidEditTokenError } from "../lib/persistence";
+import { upsertCachedPlan } from "../lib/localCache";
 import { debounce } from "../lib/debounce";
 import { DonutChart } from "../components/DonutChart";
 import { PersonRow } from "../components/PersonRow";
@@ -38,6 +38,11 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
   const [status, setStatus] = useState<"loading" | "ready" | "not-found" | "error">(
     "loading",
   );
+  // Optimistic: a token in the URL is assumed valid until the server says
+  // otherwise. The server never tells us the real edit_token (it can't be
+  // read by anon at all — see supabase/schema.sql), so this can only be
+  // confirmed or rejected by an actual write, never verified up front.
+  const [editAllowed, setEditAllowed] = useState(Boolean(token));
   const [saveFailed, setSaveFailed] = useState(false);
   const [newPersonName, setNewPersonName] = useState("");
   const [newPersonCapacity, setNewPersonCapacity] = useState(0);
@@ -47,9 +52,15 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
   const debouncedSave = useMemo(
     () =>
       debounce((next: Plan) => {
-        upsertPlan(next)
+        updatePlanRemote(next)
           .then(() => setSaveFailed(false))
-          .catch(() => {
+          .catch((err) => {
+            if (err instanceof InvalidEditTokenError) {
+              // The link's token is wrong — this was never really ours to
+              // edit, so stop pretending and drop to read-only.
+              setEditAllowed(false);
+              return;
+            }
             // The edit is still safe in local React state; surface the
             // failure so the user knows a refresh could lose it.
             setSaveFailed(true);
@@ -67,14 +78,11 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
           setStatus("not-found");
           return;
         }
-        setPlan(loaded);
+        setPlan({ ...loaded, editToken: token ?? "" });
         setStatus("ready");
-        const cached = getCachedPlans().find((p) => p.id === id);
-        upsertCachedPlan({
-          id: loaded.id,
-          name: loaded.name,
-          editToken: token && token === loaded.editToken ? token : cached?.editToken ?? "",
-        });
+        if (token) {
+          upsertCachedPlan({ id: loaded.id, name: loaded.name, editToken: token });
+        }
       })
       .catch(() => {
         if (!cancelled) setStatus("error");
@@ -84,8 +92,6 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-
-  const canEdit = Boolean(plan && token && token === plan.editToken);
 
   function update(next: Plan) {
     setPlan(next);
@@ -134,10 +140,10 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
         <button type="button" className="link-button" onClick={onHome}>
           ← All plans
         </button>
-        {!canEdit && (
+        {!editAllowed && (
           <span className="read-only-badge">Read-only (no edit link)</span>
         )}
-        {canEdit && saveFailed && (
+        {editAllowed && saveFailed && (
           <span className="save-failed-badge">
             Couldn't save — changes are only kept in this tab until it's back
           </span>
@@ -148,7 +154,7 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
         <input
           className="plan-name-input"
           value={plan.name}
-          disabled={!canEdit}
+          disabled={!editAllowed}
           onChange={(e) => update(renamePlan(plan, e.target.value))}
         />
         <label className="unit-label-field">
@@ -157,7 +163,7 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
             className="row-input"
             value={plan.unitLabel}
             placeholder="days, story points…"
-            disabled={!canEdit}
+            disabled={!editAllowed}
             onChange={(e) => update(setUnitLabel(plan, e.target.value))}
           />
         </label>
@@ -196,12 +202,12 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
               key={person.id}
               person={person}
               unitLabel={plan.unitLabel}
-              readOnly={!canEdit}
+              readOnly={!editAllowed}
               onUpdate={(patch) => update(updatePerson(plan, person.id, patch))}
               onRemove={() => update(removePerson(plan, person.id))}
             />
           ))}
-          {canEdit && (
+          {editAllowed && (
             <form
               className="row add-form"
               onSubmit={(e) => {
@@ -240,7 +246,7 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
               key={ticket.id}
               ticket={ticket}
               unitLabel={plan.unitLabel}
-              readOnly={!canEdit}
+              readOnly={!editAllowed}
               percentOfCapacity={percentFor}
               onToggleTicket={() =>
                 update(toggleChecked(plan, { ticketId: ticket.id }))
@@ -266,7 +272,7 @@ export function PlanPage({ id, token, onHome }: PlanPageProps) {
               }
             />
           ))}
-          {canEdit && (
+          {editAllowed && (
             <form
               className="row add-form"
               onSubmit={(e) => {

@@ -65,7 +65,7 @@ function randomId(): string {
   return crypto.randomUUID();
 }
 
-function randomToken(length = 24): string {
+function randomToken(length = 32): string {
   const bytes = new Uint8Array(length / 2);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
