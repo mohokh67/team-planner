@@ -34,13 +34,10 @@ export class InvalidEditTokenError extends Error {
 }
 
 export async function fetchPlan(id: string): Promise<PublicPlan | null> {
-  const { data, error } = await supabase
-    .from("plans")
-    .select("id, name, unit_label, people, tickets")
-    .eq("id", id)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("get_plan", { p_id: id });
   if (error) throw error;
-  return data ? rowToPlan(data as PlanRow) : null;
+  const row = (data as PlanRow[] | null)?.[0];
+  return row ? rowToPlan(row) : null;
 }
 
 export async function createPlanRemote(plan: Plan): Promise<void> {
@@ -80,10 +77,7 @@ export async function fetchPlanNames(
   ids: string[],
 ): Promise<Array<{ id: string; name: string }>> {
   if (ids.length === 0) return [];
-  const { data, error } = await supabase
-    .from("plans")
-    .select("id, name")
-    .in("id", ids);
+  const { data, error } = await supabase.rpc("get_plan_names", { p_ids: ids });
   if (error) throw error;
   return data ?? [];
 }

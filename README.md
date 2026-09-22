@@ -9,10 +9,12 @@ access model.
 
 1. `npm install`
 2. Create a Supabase project, then run `supabase/schema.sql` in its SQL
-   editor. It creates the `plans` table (readable by anyone), a separate
-   `plan_secrets` table anon can't read at all, and the `create_plan` /
-   `update_plan` / `delete_plan` functions that check an edit token against
-   it before writing — see `docs/adr/0001-no-auth-persistence-model.md`.
+   editor. It creates the `plans` and `plan_secrets` tables with no direct
+   access for anyone (no RLS policies at all), plus `get_plan` /
+   `get_plan_names` / `create_plan` / `update_plan` / `delete_plan`
+   functions that are the only way in — reads are scoped to the id(s)
+   asked for, and writes check an edit token against `plan_secrets` first —
+   see `docs/adr/0001-no-auth-persistence-model.md`.
 3. Copy `.env.example` to `.env.local` and fill in your project's URL and
    anon key (Project Settings → API).
 4. `npm run dev`
